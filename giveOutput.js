@@ -1,21 +1,20 @@
 const readlineSync = require('readline-sync');
 
 function decideOutput(accounts) {
-    let command = readlineSync.question('List All or List [name]? ');
+    const command = readlineSync.question('List All or List [name]? ');
 
     if (command === 'List All') {
-        for (let i = 0; i < accounts.length; i++) {
-            delete accounts[i].Transactions;
-        }
+        accounts.forEach(accountsLine => {
+            delete accountsLine.Transactions;
+        });
         console.log(accounts);
     }
 
-    for (let i = 0; i < accounts.length; i++) {
-        if (command === 'List ' + accounts[i].Name) {
-            console.log(accounts[i]);
-            continue
+    accounts.forEach(accountsLine => {
+        if (command === 'List ' + accountsLine.Name) {
+            console.log(accountsLine);
         }
-    }
+    });
 }
 
 module.exports = {decideOutput};

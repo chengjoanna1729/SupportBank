@@ -11,38 +11,39 @@ log4js.configure({
 const moment = require('moment');
 
 function doAccounts(dataFile) {
-    let namesList = [];
-    for (let i = 0; i < dataFile.length; i++) {
-        namesList.push(dataFile[i].From);
-        namesList.push(dataFile[i].To);
-    }
-    let accountsList = Array.from(new Set(namesList));
-    
-    let accounts = [];
-    for (let i = 0; i < accountsList.length; i++) {
-        accounts[i] = {Name: accountsList[i], Net_Balance: 0, Transactions: []};
-    }
+    const namesList = [];
+    dataFile.forEach(dataLine => {
+        namesList.push(dataLine.From);
+        namesList.push(dataLine.To);
+    });
+    const accountsList = Array.from(new Set(namesList));
 
-    for (let i = 0; i < dataFile.length; i++) {
-        for (let accountsnum = 0; accountsnum < accounts.length; accountsnum++) {
-            if (!moment(dataFile[i].Date, ['DD-MM-YYYY']).isValid()) {
-                logger.warn(`Not a proper date from transaction of ${dataFile[i].Narrative}, from ${dataFile[i].From} to ${dataFile[i].To}`)
+    const accounts = [];
+    accountsList.forEach(accountsLine => {
+        accounts.push({Name: accountsLine, Net_Balance: 0, Transactions: []});
+    });
+
+    dataFile.forEach(dataLine => {
+        accounts.forEach(accountsLine => {
+            if (!moment(dataLine.Date, ['DD-MM-YYYY']).isValid()) {
+                logger.warn(`Not a proper date from transaction of ${dataLine.Narrative}, from ${dataLine.From} to ${dataLine.To}`)
             }
-            if (isNaN(dataFile[i].Amount)) {
-                logger.error(`Not a monetary value from transaction of ${dataFile[i].Narrative}, from ${dataFile[i].From} to ${dataFile[i].To}`);
+            if (isNaN(dataLine.Amount)) {
+                logger.error(`Not a monetary value from transaction of ${dataLine.Narrative}, from ${dataLine.From} to ${dataLine.To}`);
             } else {
-                if (dataFile[i].From === accounts[accountsnum].Name) {
-                    accounts[accountsnum].Transactions.push(dataFile[i]);
-                    accounts[accountsnum].Net_Balance -= +dataFile[i].Amount;
+                if (dataLine.From === accountsLine.Name) {
+                    accountsLine.Transactions.push(dataLine);
+                    accountsLine.Net_Balance -= +dataLine.Amount;
                 }
-                if (dataFile[i].To === accounts[accountsnum].Name) {
-                    accounts[accountsnum].Transactions.push(dataFile[i]);
-                    accounts[accountsnum].Net_Balance += +dataFile[i].Amount;
+                if (dataLine.To === accountsLine.Name) {
+                    accountsLine.Transactions.push(dataLine);
+                    accountsLine.Net_Balance += +dataLine.Amount;
                 }
             } 
-            accounts[accountsnum].Net_Balance = Math.round(accounts[accountsnum].Net_Balance * 100) / 100;
-        }
-    }
+            accountsLine.Net_Balance = Math.round(accountsLine.Net_Balance * 100) / 100;
+        });
+    });
+
     return accounts;
 }
 

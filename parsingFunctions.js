@@ -6,8 +6,8 @@ function csvParse(dataNum) {
     return parse(dataNum, {columns:true});
 }
 function jsonParse(dataNum) {
-    let dataName = JSON.parse(dataNum);
-    let newDataName = [];
+    const dataName = JSON.parse(dataNum);
+    const newDataName = [];
     for (let i = 0; i < dataName.length; i++) {
         newDataName.push({});
         newDataName[i].Date = moment(dataName[i].Date).format('DD-MM-YYYY');
@@ -19,8 +19,8 @@ function jsonParse(dataNum) {
     return newDataName;
 }
 function xmlParse(dataNum) {
-    let dataName = XML.parse(dataNum);
-    let newDataName = [];
+    const dataName = XML.parse(dataNum);
+    const newDataName = [];
     for (let i = 0; i < dataName.SupportTransaction.length; i++) {
         newDataName.push({});
         newDataName[i].Date = moment.unix((+dataName.SupportTransaction[i].Date - (25568))*86400).format('DD-MM-YYYY');
