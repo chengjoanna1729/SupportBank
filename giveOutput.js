@@ -4,17 +4,13 @@ function decideOutput(accounts) {
     const command = readlineSync.question('List All or List [name]? ');
 
     if (command === 'List All') {
-        accounts.forEach(accountsLine => {
-            delete accountsLine.Transactions;
-        });
-        console.log(accounts);
+        Object.values(accounts).forEach(accountsLine => {
+            console.log(`${accountsLine.name} has net balance £${accountsLine.netBalance}`)
+        })
+    } else {
+        const name = command.slice(5);
+        console.log(accounts[name]);
     }
-
-    accounts.forEach(accountsLine => {
-        if (command === 'List ' + accountsLine.Name) {
-            console.log(accountsLine);
-        }
-    });
 }
 
 module.exports = {decideOutput};

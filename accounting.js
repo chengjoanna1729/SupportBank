@@ -18,31 +18,32 @@ function doAccounts(dataFile) {
     });
     const accountsList = Array.from(new Set(namesList));
 
-    const accounts = [];
-    accountsList.forEach(accountsLine => {
-        accounts.push({Name: accountsLine, Net_Balance: 0, Transactions: []});
-    });
+    const accounts = {};
+    accountsList.forEach(name => {
+        accounts[name] = {name, netBalance: 0, transactions: []};
+    })
 
     dataFile.forEach(dataLine => {
-        accounts.forEach(accountsLine => {
-            if (!moment(dataLine.Date, ['DD-MM-YYYY']).isValid()) {
-                logger.warn(`Not a proper date from transaction of ${dataLine.Narrative}, from ${dataLine.From} to ${dataLine.To}`)
-            }
-            if (isNaN(dataLine.Amount)) {
-                logger.error(`Not a monetary value from transaction of ${dataLine.Narrative}, from ${dataLine.From} to ${dataLine.To}`);
-            } else {
-                if (dataLine.From === accountsLine.Name) {
-                    accountsLine.Transactions.push(dataLine);
-                    accountsLine.Net_Balance -= +dataLine.Amount;
-                }
-                if (dataLine.To === accountsLine.Name) {
-                    accountsLine.Transactions.push(dataLine);
-                    accountsLine.Net_Balance += +dataLine.Amount;
-                }
-            } 
-            accountsLine.Net_Balance = Math.round(accountsLine.Net_Balance * 100) / 100;
-        });
-    });
+        if (!moment(dataLine.Date, ['DD-MM-YYYY']).isValid()) {
+            logger.warn(`Not a proper date from transaction of ${dataLine.Narrative}, from ${dataLine.From} to ${dataLine.To}`)
+        }
+        if (isNaN(dataLine.Amount)) {
+            logger.error(`Not a monetary value from transaction of ${dataLine.Narrative}, from ${dataLine.From} to ${dataLine.To}`);
+            return
+        }
+        
+        const amount = +dataLine.Amount;
+
+        const fromAccount = accounts[dataLine.From];
+        fromAccount.transactions.push(dataLine);
+        fromAccount.netBalance -= amount;
+        fromAccount.netBalance = Math.round(fromAccount.netBalance * 100) / 100;
+
+        const toAccount = accounts[dataLine.To];
+        toAccount.transactions.push(dataLine);
+        toAccount.netBalance += amount;
+        toAccount.netBalance = Math.round(toAccount.netBalance * 100) / 100;
+    })
 
     return accounts;
 }

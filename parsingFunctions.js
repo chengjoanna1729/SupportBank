@@ -5,31 +5,27 @@ const moment = require('moment');
 function csvParse(dataNum) {
     return parse(dataNum, {columns:true});
 }
+
 function jsonParse(dataNum) {
     const dataName = JSON.parse(dataNum);
-    const newDataName = [];
-    for (let i = 0; i < dataName.length; i++) {
-        newDataName.push({});
-        newDataName[i].Date = moment(dataName[i].Date).format('DD-MM-YYYY');
-        newDataName[i].From = dataName[i].FromAccount;
-        newDataName[i].To = dataName[i].ToAccount;
-        newDataName[i].Narrative = dataName[i].Narrative;
-        newDataName[i].Amount = dataName[i].Amount;
-    }
-    return newDataName;
+    return dataName.map(dataLine => ({
+        Date: moment(dataLine.Date).format('DD-MM-YYYY'),
+        From: dataLine.FromAccount,
+        To: dataLine.ToAccount,
+        Narrative: dataLine.Narrative,
+        Amount: dataLine.Amount
+    }));
 }
+
 function xmlParse(dataNum) {
     const dataName = XML.parse(dataNum);
-    const newDataName = [];
-    for (let i = 0; i < dataName.SupportTransaction.length; i++) {
-        newDataName.push({});
-        newDataName[i].Date = moment.unix((+dataName.SupportTransaction[i].Date - (25568))*86400).format('DD-MM-YYYY');
-        newDataName[i].From = dataName.SupportTransaction[i].Parties.From;
-        newDataName[i].To = dataName.SupportTransaction[i].Parties.To;
-        newDataName[i].Narrative = dataName.SupportTransaction[i].Description;
-        newDataName[i].Amount = dataName.SupportTransaction[i].Value;
-    }
-    return newDataName;
+    return dataName.SupportTransaction.map(dataLine => ({
+        Date: moment.unix((+dataLine.Date - (25568))*86400).format('DD-MM-YYYY'),
+        From: dataLine.Parties.From,
+        To: dataLine.Parties.To,
+        Narrative: dataLine.Description,
+        Amount: dataLine.Value
+    }));
 }
 
 module.exports = {csvParse, jsonParse, xmlParse};
