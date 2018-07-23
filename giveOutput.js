@@ -8,7 +8,7 @@ function decideOutput(accounts) {
             console.log(`${accountsLine.name} has net balance £${accountsLine.netBalance}`)
         })
     } else {
-        const name = command.slice(5);
+        const name = command.slice('List '.length);
         console.log(accounts[name]);
     }
 }

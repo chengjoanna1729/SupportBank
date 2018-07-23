@@ -3,16 +3,16 @@ const fs = require('fs');
 const parsingFuncs = require('./parsingFunctions');
 
 function readData() {
-    const data1 = fs.readFileSync('C:/Users/JOC/Documents/Training/SupportBank/Transactions2014.csv', 'utf8');
-    const data2 = fs.readFileSync('C:/Users/JOC/Documents/Training/SupportBank/DodgyTransactions2015.csv', 'utf8');
-    const data3 = fs.readFileSync('C:/Users/JOC/Documents/Training/SupportBank/Transactions2013.json', 'utf8');
-    const data4 = fs.readFileSync('C:/Users/JOC/Documents/Training/SupportBank/Transactions2012.xml', 'utf8')
+    const ta2014 = fs.readFileSync('C:/Users/JOC/Documents/Training/SupportBank/Transactions2014.csv', 'utf8');
+    const ta2015 = fs.readFileSync('C:/Users/JOC/Documents/Training/SupportBank/DodgyTransactions2015.csv', 'utf8');
+    const ta2013 = fs.readFileSync('C:/Users/JOC/Documents/Training/SupportBank/Transactions2013.json', 'utf8');
+    const ta2012 = fs.readFileSync('C:/Users/JOC/Documents/Training/SupportBank/Transactions2012.xml', 'utf8')
 
-    const firstData = parsingFuncs.csvParse(data1);
-    const secondData = parsingFuncs.csvParse(data2);
-    const thirdData = parsingFuncs.jsonParse(data3);
-    const fourthData = parsingFuncs.xmlParse(data4);
-    const dataFile = [...firstData, ...secondData, ...thirdData, ...fourthData];
+    const csvData = parsingFuncs.csvParse(ta2014);
+    const dodgyCsvData = parsingFuncs.csvParse(ta2015);
+    const jsonData = parsingFuncs.jsonParse(ta2013);
+    const xmlData = parsingFuncs.xmlParse(ta2012);
+    const dataFile = [...csvData, ...dodgyCsvData, ...jsonData, ...xmlData];
 
     const fileName = readlineSync.question('Import file ');
     if (fileName.slice(-4) === '.csv') {

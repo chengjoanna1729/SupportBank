@@ -3,28 +3,35 @@ const XML = require('pixl-xml');
 const moment = require('moment');
 
 function csvParse(dataNum) {
-    return parse(dataNum, {columns:true});
+    const dataName = parse(dataNum, {columns:true});
+    return dataName.map(({Date: date, From: from, To: to, Narrative: narrative, Amount: amount}) => ({
+        date,
+        from,
+        to,
+        narrative,
+        amount
+    }));
 }
 
 function jsonParse(dataNum) {
     const dataName = JSON.parse(dataNum);
-    return dataName.map(dataLine => ({
-        Date: moment(dataLine.Date).format('DD-MM-YYYY'),
-        From: dataLine.FromAccount,
-        To: dataLine.ToAccount,
-        Narrative: dataLine.Narrative,
-        Amount: dataLine.Amount
+    return dataName.map(({Date: date, FromAccount, ToAccount, Narrative: narrative, Amount: amount}) => ({
+        date: moment(date).format('DD-MM-YYYY'),
+        from: FromAccount,
+        to: ToAccount,
+        narrative,
+        amount
     }));
 }
 
 function xmlParse(dataNum) {
     const dataName = XML.parse(dataNum);
-    return dataName.SupportTransaction.map(dataLine => ({
-        Date: moment.unix((+dataLine.Date - (25568))*86400).format('DD-MM-YYYY'),
-        From: dataLine.Parties.From,
-        To: dataLine.Parties.To,
-        Narrative: dataLine.Description,
-        Amount: dataLine.Value
+    return dataName.SupportTransaction.map(({Date: date, Parties, Description: narrative, Value: amount}) => ({
+        date: moment.unix((+date - (25568))*86400).format('DD-MM-YYYY'),
+        from: Parties.From,
+        to: Parties.To,
+        narrative,
+        amount
     }));
 }
 

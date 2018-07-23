@@ -13,8 +13,8 @@ const moment = require('moment');
 function doAccounts(dataFile) {
     const namesList = [];
     dataFile.forEach(dataLine => {
-        namesList.push(dataLine.From);
-        namesList.push(dataLine.To);
+        namesList.push(dataLine.from);
+        namesList.push(dataLine.to);
     });
     const accountsList = Array.from(new Set(namesList));
 
@@ -24,25 +24,25 @@ function doAccounts(dataFile) {
     })
 
     dataFile.forEach(dataLine => {
-        if (!moment(dataLine.Date, ['DD-MM-YYYY']).isValid()) {
-            logger.warn(`Not a proper date from transaction of ${dataLine.Narrative}, from ${dataLine.From} to ${dataLine.To}`)
+        if (!moment(dataLine.date, ['DD-MM-YYYY']).isValid()) {
+            logger.warn(`Not a proper date from transaction of ${dataLine.narrative}, from ${dataLine.from} to ${dataLine.to}`)
         }
-        if (isNaN(dataLine.Amount)) {
-            logger.error(`Not a monetary value from transaction of ${dataLine.Narrative}, from ${dataLine.From} to ${dataLine.To}`);
+        if (isNaN(dataLine.amount)) {
+            logger.error(`Not a monetary value from transaction of ${dataLine.narrative}, from ${dataLine.from} to ${dataLine.to}`);
             return
         }
+
+        const amount = +dataLine.amount;
         
-        const amount = +dataLine.Amount;
-
-        const fromAccount = accounts[dataLine.From];
-        fromAccount.transactions.push(dataLine);
-        fromAccount.netBalance -= amount;
-        fromAccount.netBalance = Math.round(fromAccount.netBalance * 100) / 100;
-
-        const toAccount = accounts[dataLine.To];
-        toAccount.transactions.push(dataLine);
-        toAccount.netBalance += amount;
-        toAccount.netBalance = Math.round(toAccount.netBalance * 100) / 100;
+        function updateBalance(whichAccount, operation) {
+            const account = accounts[dataLine[whichAccount]];
+            account.transactions.push(dataLine);
+            const newBalance = +account.netBalance + (+(operation) * amount);
+            account.netBalance = Math.round(newBalance * 100) / 100;
+            return account;
+        }
+        updateBalance('from','-1');
+        updateBalance('to','+1');
     })
 
     return accounts;
